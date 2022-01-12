@@ -82,6 +82,7 @@ def authorized():
     if request.args.get('state') != session.get("state"):
         return redirect(url_for("home"))  # No-OP. Goes back to Index page
     if "error" in request.args:  # Authentication/Authorization failure
+        app.logger.warning("Authorization error: %s", request.args["error"])
         return render_template("auth_error.html", result=request.args)
     if request.args.get('code'):
         cache = _load_cache()
@@ -96,7 +97,7 @@ def authorized():
         # Here, we'll use the admin username for anyone who is authenticated by MS
         user = User.query.filter_by(username="admin").first()
         login_user(user)
-        app.log.warning("Logged in user: %s", user.username)
+        app.logger.warning("Logged in user: %s", user.username)
         _save_cache(cache)
     return redirect(url_for('home'))
 
@@ -105,7 +106,7 @@ def logout():
     logout_user()
     if session.get("user"): # Used MS Login
         # Wipe out user and its token cache from session
-        app.log.warning("User '{}' logged out".format(session["user"]))
+        app.logger.warning("User '{}' logged out".format(session["user"]))
         session.clear()
         # Also logout from your tenant's web session
         return redirect(
