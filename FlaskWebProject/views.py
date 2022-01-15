@@ -106,7 +106,7 @@ def logout():
     logout_user()
     if session.get("user"): # Used MS Login
         # Wipe out user and its token cache from session
-        app.logger.warning("User '{}' logged out".format(session["user"]))
+        app.logger.warning("User logged out successfully.")
         session.clear()
         # Also logout from your tenant's web session
         return redirect(
