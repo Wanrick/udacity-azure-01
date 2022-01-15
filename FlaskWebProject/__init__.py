@@ -12,11 +12,10 @@ app = Flask(__name__)
 app.config.from_object(Config)
 Session(app)
 
-app.logger.setLevel(logging.WARNING)
+app.logger.setLevel(logging.INFO)
 streamHandler = logging.StreamHandler()
-streamHandler.setLevel(logging.WARNING)
+streamHandler.setLevel(logging.INFO)
 app.logger.addHandler(streamHandler)
-app.logger.warning('A new log has dawned!')
 
 db = SQLAlchemy(app)
 login = LoginManager(app)

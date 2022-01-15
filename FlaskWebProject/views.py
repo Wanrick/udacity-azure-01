@@ -82,7 +82,7 @@ def authorized():
     if request.args.get('state') != session.get("state"):
         return redirect(url_for("home"))  # No-OP. Goes back to Index page
     if "error" in request.args:  # Authentication/Authorization failure
-        app.logger.warning("Authorization error: %s", request.args["error"])
+        app.logger.info("Failed to login user.")
         return render_template("auth_error.html", result=request.args)
     if request.args.get('code'):
         cache = _load_cache()
@@ -90,6 +90,7 @@ def authorized():
                                                                                   scopes=Config.SCOPE,  # Misspelled scope would cause an HTTP 400 error here
                                                                                   redirect_uri=url_for('authorized', _external=True, _scheme='https'))
         if "error" in result:
+            app.logger.info("Failed to login user.")
             return render_template("auth_error.html", result=result)
         session["user"] = result.get("id_token_claims")
         _save_cache(cache)
@@ -97,7 +98,7 @@ def authorized():
         # Here, we'll use the admin username for anyone who is authenticated by MS
         user = User.query.filter_by(username="admin").first()
         login_user(user)
-        app.logger.warning("Logged in user: %s", user.username)
+        app.logger.info("Logged in user: %s", user.username)
         _save_cache(cache)
     return redirect(url_for('home'))
 
@@ -106,7 +107,7 @@ def logout():
     logout_user()
     if session.get("user"): # Used MS Login
         # Wipe out user and its token cache from session
-        app.logger.warning("User logged out successfully.")
+        app.logger.info("User logged out successfully.")
         session.clear()
         # Also logout from your tenant's web session
         return redirect(
